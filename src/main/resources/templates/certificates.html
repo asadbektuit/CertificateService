@@ -1,0 +1,160 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" th:href="@{/css/isystem.css}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body onload="getAll()">
+<div id="app" class="page">
+    <div class="main pb-0">
+        <div class="container header js-header" id="header">
+            <div class="header__center">
+                <button class="header__burger js-header-burger">
+                    <span></span>
+                </button>
+                <a class="header__logo" href="https://isystem.uz">
+                    <img class="header__pic" th:src="@{/images/isystem-logo.png}" alt=""></a>
+                <div class="header__wrap js-header-wrap">
+                    <nav class="header__nav">
+                        <a class=" header__item " href="https://localhost:8080/users">Foydalanuvchilar
+                        </a>
+                        <a class="header__item " href="https://localhost:8080/directions">Yo'nalishlar
+                        </a>
+                        <a class="header__item " href="https://localhost:8080/certificates">Sertifikatlar
+                        </a>
+                    </nav>
+                </div>
+
+                <button class="quality__link btn btn-lg btn-outline-light text-dark border-warning ml-5 bg-warning"
+                        data-toggle="modal" data-target="#exampleModalCenter">Yaratish
+                </button>
+            </div>
+            <div class="header__bg js-header-bg"></div>
+        </div>
+        <div class="container">
+            <div id="table"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Certificate yaratish</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="popup" id="popup-contact">
+                    <div class="popup__wrap">
+                        <div class="popup__body bg-warning">
+                            <form class="popup__form" method="post" action="https://isystem.uz/contact">
+                                <div class="popup__field field">
+                                    <div class="field__label">Ismi</div>
+                                    <div class="field__wrap">
+                                        <div class="field__icon"><img class="field__pic" alt="">
+                                        </div>
+                                        <input class="field__input" id="inputName" type="text" name="name" value=""
+                                               placeholder="Ismingizni kiriting">
+                                    </div>
+                                </div>
+                                <div class="popup__field field">
+                                    <div class="field__label">Familiyasi</div>
+                                    <div class="field__wrap">
+                                        <div class="field__icon"><img class="field__pic"
+                                                                      alt=""></div>
+                                        <input class="field__input" type="text" id="inputSurname" name="surname"
+                                               value=""
+                                               placeholder="Familiyangizni kiritng">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="popup__circles">
+                                <div class="popup__circle"></div>
+                                <div class="popup__circle"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="save()">Saqlash</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script>
+
+    function getAll() {
+        axios.get("/api/v1/users/getAll")
+            .then(function (result) {
+                console.log(result)
+                createTable(result.data);
+            })
+    }
+
+    function createTable(tableList) {
+        const table = document.createElement("table");
+        const tbody = document.createElement("tbody");
+        const thead = document.createElement("thead");
+
+        const first = document.createElement("tr");
+        first.append(createTableTemp("th", "Id"))
+        first.append(createTableTemp("th", "Name"))
+        first.append(createTableTemp("th", "Surname"))
+        thead.classList.add("th", "thead-dark")
+        thead.append(first)
+
+        for (let i = 0; i < tableList.length; i++) {
+            const row = document.createElement("tr");
+            row.append(createTableTemp("td", tableList[i].id))
+            row.append(createTableTemp("td", tableList[i].firstname))
+            row.append(createTableTemp("td", tableList[i].lastname))
+            tbody.append(row)
+        }
+
+        table.append(thead);
+        table.append(tbody)
+        table.classList.add("table");
+        table.classList.add("table-striped");
+        document.getElementById("table").append(table);
+    }
+
+    function createTableTemp(tableElement, text) {
+        const temp = document.createElement(tableElement);
+        temp.append(text);
+        return temp;
+    }
+
+    function save() {
+        const name = document.getElementById("inputName").value
+        const surname = document.getElementById("inputSurname").value
+        console.log(name)
+        axios.post("/api/v1/users", {
+            firstname: name,
+            lastname: surname
+        }).then(
+                window.location = "/users"
+            )
+    }
+</script>
+</body>
+</html>
